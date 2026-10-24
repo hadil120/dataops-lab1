@@ -77,3 +77,35 @@ Un test unitaire vérifie que ma logique de code est juste, sur un petit
 tableau écrit à la main dont je connais la bonne réponse. Un contrôle de
 données vérifie que les vraies données de cette exécution sont acceptables,
 et il tourne à chaque exécution du pipeline.
+
+
+## Étape 6
+
+### Q11
+|                               | Ancien script                              | Votre pipeline                                         |
+|-------------------------------|--------------------------------------------|--------------------------------------------------------|
+| Jour 2 : message d'erreur ?   | Non, aucun                                 | Oui : PIPELINE STOPPED, taux de rejet 100 % (6/6)      |
+| Jour 2 : total affiché        | 270200                                     | Aucun total (rien n'est publié)                        |
+| Jour 3 : message d'erreur ?   | Oui, plantage KeyError: 'unit_price'       | Oui : PIPELINE STOPPED: Missing columns: ['unit_price'] |
+
+### Q12
+Jour 2 : les prix unitaires sont multipliés par 100 par rapport au jour 1
+(449 est devenu 44900, 229 est devenu 22900), probablement un changement
+d'unité (centimes au lieu de la monnaie). Toutes les lignes dépassent
+MAX_UNIT_PRICE, donc elles sont toutes rejetées.
+Jour 3 : la colonne unit_price a été renommée price. Le schéma a changé.
+
+### Q13
+Le jour 2 est le plus dangereux. L'ancien script ne plante pas et affiche
+sans erreur un total de 270200, environ 100 fois trop grand, que personne ne
+remarque et sur lequel le directeur commercial peut prendre des décisions.
+Le jour 3, le script plante : c'est gênant, mais l'erreur est visible, donc
+quelqu'un la voit et la corrige.
+
+### Q14
+Le code de sortie peut être utilisé par un programme qui lance le pipeline :
+un ordonnanceur (cron, Airflow) pour arrêter les étapes suivantes, un outil
+d'intégration continue (GitHub Actions) pour marquer l'exécution comme
+échouée, un script shell (avec &&), ou un outil de monitoring pour envoyer
+une alerte à l'équipe. Sans ce code, le programme appelant croirait que tout
+s'est bien passé.
